@@ -1,0 +1,11 @@
+
+https://www.bling.com.br/Api/v3/oauth/authorize?response_type=code&client_id=3a241b817839f9d8a9f9813636e0d82f61750766&state=e70bb58a0deef705ed1acd8735c48331
+
+CLIENT_ID:3a241b817839f9d8a9f9813636e0d82f61750766
+CLIENT_SECRET:37d5e3369038caebf32589567b5832623f9a3e408bdb643b1fdf99017ddb
+CODE: be9b507dd6092f030da3c120a0e1ff96190a704a
+
+python emissor_nota_fiscal.py --client_id 3a241b817839f9d8a9f9813636e0d82f61750766 --client_secret 37d5e3369038caebf32589567b5832623f9a3e408bdb643b1fdf99017ddb --redirect_uri http://127.0.0.1:5000/callback --dados_nota "{\"contato\": {\"nome\": \"Celso Ricardo de Oliveira Ferreira\", \"tipoPessoa\": \"F\", \"numeroDocumento\": \"37262878840\", \"contribuinte\": 2, \"ie\": \"\", \"rg\": \"\", \"telefone\": \"\", \"email\": \"\", \"endereco\": {\"endereco\": \"Rua Baviera\", \"bairro\": \"Residencial Lagos de Jarinu\", \"municipio\": \"São Paulo\", \"numero\": \"68\", \"complemento\": \"\", \"cep\": \"13242520\", \"uf\": \"SP\", \"pais\": \"\"}}, \"tipo\": 0, \"situacao\": 6, \"numero\": \"INCREMENTAR_ID\", \"dataOperacao\": \"2025-03-11 15:01:01\", \"naturezaOperacao\": {\"id\": \"0\"}, \"itens\": [{\"codigo\": \"1\", \"unidade\": \"KG\", \"quantidade\": \"10\", \"valor\": \"3\"}, {\"codigo\": \"1\", \"unidade\": \"\", \"quantidade\": \"\", \"valor\": \"\"}]}"
+
+
+Algumas Observações:
