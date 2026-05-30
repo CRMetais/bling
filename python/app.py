@@ -44,11 +44,7 @@ def mapear_para_bling(nf):
     payload_bling = {
         "tipo":         tipo,
         "situacao":     6,
-        "numero":       "INCREMENTAR_ID",
         "dataOperacao": nf["dataEmissao"],
-        "naturezaOperacao": {
-            "id": "0" # CONFIRMAR COM O RICARDO
-        },
         "contato": contato,
         "itens":   itens
     }
