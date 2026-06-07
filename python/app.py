@@ -1,5 +1,6 @@
 # from flask import Flask, jsonify, request
 # from flask_cors import CORS
+# import json
 
 # app = Flask(__name__)
 # CORS(app, supports_credentials=True)
@@ -14,8 +15,8 @@
 #         "nome":            f["nome"],
 #         "tipoPessoa":      f["tipoPessoa"],
 #         "numeroDocumento": f["documento"],
-#         "contribuinte":    2,          
-#         "ie":              "",
+#         "contribuinte":    1 if (f["tipoPessoa"] == "J" and f.get("ie", "")) else 2,
+#         "ie":              f.get("ie", ""),
 #         "rg":              "",
 #         "telefone":        f.get("telefone", ""),
 #         "email":           "",
@@ -27,7 +28,7 @@
 #             "municipio":   e["cidade"],
 #             "cep":         e["cep"],
 #             "uf":          e["estado"],
-#             "pais":        "Brasil"
+#             "pais":        ""
 #         }
 #     }
 
@@ -45,8 +46,8 @@
 #         "tipo":         tipo,
 #         "situacao":     6,
 #         "dataOperacao": nf["dataEmissao"],
-#         "contato": contato,
-#         "itens":   itens
+#         "contato":      contato,
+#         "itens":        itens
 #     }
 
 #     return payload_bling
@@ -56,27 +57,19 @@
 # def receber_nf():
 #     try:
 #         nf = request.get_json()
-
 #         print("NF recebida do Java:")
 #         print(nf)
-
 #         payload_bling = mapear_para_bling(nf)
-
 #         print("\nPayload montado para o Bling:")
-#         print(payload_bling)
-
+#         print(json.dumps(payload_bling, indent=2, ensure_ascii=False))
 #         return jsonify({
 #             "status": "ok",
 #             "mensagem": "NF mapeada com sucesso",
 #             "payload_bling": payload_bling
 #         })
-
 #     except Exception as e:
 #         print("ERRO:", e)
-#         return jsonify({
-#             "status": "erro",
-#             "mensagem": str(e)
-#         }), 500
+#         return jsonify({"status": "erro", "mensagem": str(e)}), 500
 
 
 # if __name__ == "__main__":
@@ -160,22 +153,26 @@ def mapear_para_bling(nf):
     f = nf["fornecedor"]
     e = f["endereco"]
 
-    tipo = "0" if nf.get("tipoNota") == "ENTRADA" else "1"
+    tipo        = "0" if nf.get("tipoNota") == "ENTRADA" else "1"
+    is_pj       = f.get("tipoPessoa", "F") == "J"
+    ie          = f.get("ie", "")
+    contribuinte = 1 if (is_pj and ie) else 2
+    consumidor_final = 0 if (is_pj and ie) else 1
 
     return {
-        "tipo":       tipo,
-        "consumidorFinal": 1,
-        "dataOperacao": nf["dataEmissao"],
+        "tipo":            tipo,
+        "consumidorFinal": consumidor_final,
+        "dataOperacao":    nf["dataEmissao"],
         "naturezaOperacao": tipo,
         "contato": {
             "nome":            f["nome"],
             "tipoPessoa":      f.get("tipoPessoa", "F"),
             "numeroDocumento": f["documento"],
-            "contribuinte":    2,
-            "ie":              "131984156110",
+            "contribuinte":    contribuinte,
+            "ie":              ie,
             "rg":              "",
             "telefone":        f.get("telefone", ""),
-            "email":           "",
+            "email":           f.get("email", ""),
             "endereco": {
                 "endereco":    e["logradouro"],
                 "numero":      e["numero"],
