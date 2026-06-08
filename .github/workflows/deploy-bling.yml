@@ -36,15 +36,30 @@ jobs:
             USUARIO_IP=ubuntu@${{ secrets.REMOTE_HOST_PRIVADO }}
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
               'mkdir -p /home/ubuntu/backend'
-            echo "SSH mkdir: $?"
             scp -o StrictHostKeyChecking=no -i $ARQUIVO_PEM \
               /home/ubuntu/backend/nf.py \
               $USUARIO_IP:/home/ubuntu/backend/nf.py
-            echo "SCP result: $?"
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
-              'sudo apt-get install -y python3 python3-pip && pip3 install flask flask-cors requests --break-system-packages'
+              'python3 -m pip install flask flask-cors requests --break-system-packages'
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
-              'pkill -f nf.py || true'
+              'sudo tee /etc/systemd/system/bling.service > /dev/null << EOF
+              [Unit]
+              Description=Bling Python Service
+              After=network.target
+              
+              [Service]
+              User=ubuntu
+              WorkingDirectory=/home/ubuntu/backend
+              Environment=PYTHONUNBUFFERED=1
+              ExecStart=/usr/bin/python3 /home/ubuntu/backend/nf.py
+              Restart=always
+              RestartSec=5
+              StandardOutput=append:/tmp/python-bling.log
+              StandardError=append:/tmp/python-bling.log
+              
+              [Install]
+              WantedBy=multi-user.target
+              EOF'
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
-              'nohup python3 /home/ubuntu/backend/nf.py > /tmp/python-bling.log 2>&1 & disown; exit 0'
+              'sudo systemctl daemon-reload && sudo systemctl enable bling && sudo systemctl restart bling'
             rm -f $ARQUIVO_PEM
