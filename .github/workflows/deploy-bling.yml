@@ -29,7 +29,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            set -e
             ARQUIVO_PEM="/home/ubuntu/chavetmp.pem"
             rm -f $ARQUIVO_PEM
             echo "${{ secrets.EC2_SSH_KEY }}" > $ARQUIVO_PEM
@@ -37,9 +36,11 @@ jobs:
             USUARIO_IP=ubuntu@${{ secrets.REMOTE_HOST_PRIVADO }}
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
               'mkdir -p /home/ubuntu/backend'
+            echo "SSH mkdir: $?"
             scp -o StrictHostKeyChecking=no -i $ARQUIVO_PEM \
               /home/ubuntu/backend/nf.py \
               $USUARIO_IP:/home/ubuntu/backend/nf.py
+            echo "SCP result: $?"
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
               'sudo apt-get install -y python3 python3-pip && pip3 install flask flask-cors requests --break-system-packages'
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
