@@ -39,7 +39,7 @@ jobs:
               /home/ubuntu/backend/nf.py \
               $USUARIO_IP:/home/ubuntu/backend/nf.py
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
-              'pip3 install flask flask-cors requests --break-system-packages'
+              'sudo apt-get install -y python3 python3-pip && pip3 install flask flask-cors requests --break-system-packages'
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
               'pkill -f nf.py || true'
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
