@@ -1,10 +1,8 @@
 name: Deploy Bling para EC2 Privada
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -36,10 +34,12 @@ jobs:
             chmod 400 $ARQUIVO_PEM
             USUARIO_IP=ubuntu@${{ secrets.REMOTE_HOST_PRIVADO }}
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
-            'mkdir -p /home/ubuntu/backend'
-            scp -o StrictHostKeyChecking=no -i $ARQUIVO_PEM \
+              'mkdir -p /home/ubuntu/backend'
+            echo "✅ SSH OK, copiando arquivo..."
+            scp -v -o StrictHostKeyChecking=no -i $ARQUIVO_PEM \
               /home/ubuntu/backend/nf.py \
               $USUARIO_IP:/home/ubuntu/backend/nf.py
+            echo "✅ SCP OK, instalando dependências..."
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
               'sudo apt-get install -y python3 python3-pip && pip3 install flask flask-cors requests --break-system-packages'
             ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
