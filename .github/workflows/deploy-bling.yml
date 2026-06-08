@@ -35,6 +35,8 @@ jobs:
             echo "${{ secrets.EC2_SSH_KEY }}" > $ARQUIVO_PEM
             chmod 400 $ARQUIVO_PEM
             USUARIO_IP=ubuntu@${{ secrets.REMOTE_HOST_PRIVADO }}
+            ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
+            'mkdir -p /home/ubuntu/backend'
             scp -o StrictHostKeyChecking=no -i $ARQUIVO_PEM \
               /home/ubuntu/backend/nf.py \
               $USUARIO_IP:/home/ubuntu/backend/nf.py
