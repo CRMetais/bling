@@ -1,0 +1,47 @@
+name: Deploy Bling para EC2 Privada
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Copiar nf.py para EC2 Pública
+        uses: easingthemes/ssh-deploy@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ubuntu
+          TARGET: /home/ubuntu/backend/
+          ARGS: "-ltgoDzvO"
+          SOURCE: "./python/nf.py"
+
+      - name: Instalar dependências e reiniciar Python na EC2 Privada
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            ARQUIVO_PEM="/home/ubuntu/chavetmp.pem"
+            rm -f $ARQUIVO_PEM
+            echo "${{ secrets.EC2_SSH_KEY }}" > $ARQUIVO_PEM
+            chmod 400 $ARQUIVO_PEM
+            USUARIO_IP=ubuntu@${{ secrets.REMOTE_HOST_PRIVADO }}
+            scp -o StrictHostKeyChecking=no -i $ARQUIVO_PEM \
+              /home/ubuntu/backend/nf.py \
+              $USUARIO_IP:/home/ubuntu/backend/nf.py
+            ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
+              'pip3 install flask flask-cors requests --break-system-packages'
+            ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
+              'pkill -f nf.py || true'
+            ssh -o StrictHostKeyChecking=no -i $ARQUIVO_PEM $USUARIO_IP \
+              'nohup python3 /home/ubuntu/backend/nf.py > /tmp/python-bling.log 2>&1 &'
+            rm -f $ARQUIVO_PEM
